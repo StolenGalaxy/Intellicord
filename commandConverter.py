@@ -3,7 +3,7 @@ from time import sleep
 oddNumbers = [1, 3, 5, 7, 9]
 
 
-def convert(command: str, discordSession):
+async def convert(command: str, discordSession):
     number = command.count("#=")
 
     commands = []

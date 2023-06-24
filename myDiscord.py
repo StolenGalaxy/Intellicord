@@ -1,16 +1,17 @@
 import requests
 from datetime import datetime
 from random import choice
+import aiohttp
 
 
-class Discord:
+class myDiscord:
     def __init__(self, authToken, channelID):
         self.channelID = channelID
-        self.rSession = requests.Session()
+        self.rSession = aiohttp.ClientSession()
         self.rSession.headers = {"Authorization": authToken}
 
-    def readMessages(self, limit):
-        json = self.rSession.get(f"https://discord.com/api/v9/channels/{self.channelID}/messages?limit={limit}").json()
+    async def readMessages(self, limit):
+        json = await self.rSession.get(f"https://discord.com/api/v9/channels/{self.channelID}/messages?limit={limit}").json()
 
         messages = []
         i = 0
@@ -35,27 +36,27 @@ class Discord:
 
         return [messages, recentAuthor]
 
-    def sendMessage(self, text):
+    async def sendMessage(self, text):
         data = {"content": text}
         json = self.rSession.post(f"https://discord.com/api/v9/channels/{self.channelID}/messages", data=data)
         print(f"Response of sending message: {json.content}")
 
-    def uploadImage(self, imagePath, message):
+    async def uploadImage(self, imagePath, message):
         file = open(imagePath, "rb")
         data = {"content": message}
 
-        json = self.rSession.post(f"https://discord.com/api/v9/channels/{self.channelID}/messages", files={"file": file}, data=data)
+        json = await self.rSession.post(f"https://discord.com/api/v9/channels/{self.channelID}/messages", files={"file": file}, data=data)
 
         print(f"Response of uploading image: {json.content}")
 
-    def replyMessage(self, messageID, text):
+    async def replyMessage(self, messageID, text):
         data = {"content": text, "message_reference": {
             "message_id": messageID
         }}
-        json = self.rSession.post(f"https://discord.com/api/v9/channels/{self.channelID}/messages", json=data)
+        json = await self.rSession.post(f"https://discord.com/api/v9/channels/{self.channelID}/messages", json=data)
         print(f"Response of replying to message: {json.content}")
 
-    def findGif(self, search):
+    async def findGif(self, search):
         # Search for gif
         json = self.rSession.get(f"https://discord.com/api/v9/gifs/search?q={search}&media_format=mp4&provider=tenor").json()
 
@@ -65,16 +66,16 @@ class Discord:
 
         return choice(gifs)
 
-    def reactToMessage(self, messageID, emojiURLEncode):
-        self.rSession.put(f"https://discord.com/api/v9/channels/{self.channelID}/messages/{messageID}/reactions/{emojiURLEncode}/@me")
+    async def reactToMessage(self, messageID, emojiURLEncode):
+        await self.rSession.put(f"https://discord.com/api/v9/channels/{self.channelID}/messages/{messageID}/reactions/{emojiURLEncode}/@me")
 
-    def showTyping(self):
-        self.rSession.post(f"https://discord.com/api/v9/channels/{self.channelID}/typing")
+    async def showTyping(self):
+        await self.rSession.post(f"https://discord.com/api/v9/channels/{self.channelID}/typing")
 
-    def getOwnInfo(self):
-        json = self.rSession.get("https://discord.com/api/v9/users/@me").json()
+    async def getOwnInfo(self):
+        json = await self.rSession.get("https://discord.com/api/v9/users/@me").json()
         return json
 
-    def getChatInfo(self):
-        json = self.rSession.get(f"https://discord.com/api/v9/channels/{self.channelID}").json()
+    async def getChatInfo(self):
+        json = await self.rSession.get(f"https://discord.com/api/v9/channels/{self.channelID}").json()
         return json

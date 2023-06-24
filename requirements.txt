@@ -1,2 +1,2 @@
-EdgeGPT==0.8.0
+EdgeGPT==0.11.6
 Requests==2.31.0
